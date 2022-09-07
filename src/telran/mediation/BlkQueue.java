@@ -21,12 +21,13 @@ public class BlkQueue<T> implements IBlkQueue<T> {
 
 	@Override
 	public void push(T message) {
+
 		mutex.lock();
 		try {
-
 				while (messages.size() == buffer){
 					try {
 						producerWaitingCondition.await();
+
 					} catch (InterruptedException e) {
 						throw new RuntimeException(e);
 					}
@@ -40,7 +41,7 @@ public class BlkQueue<T> implements IBlkQueue<T> {
 
 	@Override
 	public T pop() {
-		T res;
+//		T res;
 		mutex.lock();
 		try {
 				while (messages.isEmpty()){
@@ -50,9 +51,8 @@ public class BlkQueue<T> implements IBlkQueue<T> {
 						throw new RuntimeException(e);
 					}
 				}
-				res = messages.removeLast();
+				T res = messages.removeLast();
 				producerWaitingCondition.signal();
-				System.out.println(messages.size());
 				return res;
 
 		} finally {
