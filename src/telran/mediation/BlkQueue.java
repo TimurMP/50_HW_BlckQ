@@ -23,10 +23,7 @@ public class BlkQueue<T> implements IBlkQueue<T> {
 	public void push(T message) {
 		mutex.lock();
 		try {
-			if (messages.size() < buffer){
-				messages.addLast(message);
-			}
-			else {
+
 				while (messages.size() == buffer){
 					try {
 						producerWaitingCondition.await();
@@ -36,7 +33,6 @@ public class BlkQueue<T> implements IBlkQueue<T> {
 				}
 				messages.add(message);
 				consumerWaitingCondition.signal();
-			}
 		} finally {
 			mutex.unlock();
 		}
@@ -46,13 +42,7 @@ public class BlkQueue<T> implements IBlkQueue<T> {
 	public T pop() {
 		T res;
 		mutex.lock();
-
-
 		try {
-			if (!messages.isEmpty()){
-				res = messages.removeLast();
-			}
-			else {
 				while (messages.isEmpty()){
 					try {
 						consumerWaitingCondition.await();
@@ -62,13 +52,12 @@ public class BlkQueue<T> implements IBlkQueue<T> {
 				}
 				res = messages.removeLast();
 				producerWaitingCondition.signal();
+				System.out.println(messages.size());
 				return res;
 
-			}
 		} finally {
 			mutex.unlock();
 		}
-		return null;
 
 	}
 }
